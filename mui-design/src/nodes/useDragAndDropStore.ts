@@ -1,13 +1,7 @@
 import { create } from 'zustand';
-
-export interface Node {
-    id: string; // Unique identifier
-    type: string; // Type of the node (e.g., 'button', 'input', etc.)
-    parentId?: string; // Parent node ID for nested structures
-    children?: string[]; // Array of child node IDs
-    properties?: Record<string, any>; // Additional properties (e.g., label, color)
-    propertySchema: Record<string, any>;
-}
+import type { PropertySchema, Node } from './node';
+import { nodeRegistry } from './registry';
+import { newNode } from './nodeFlex';
 
 export interface UIState {
     rootNode: Node;
@@ -21,6 +15,7 @@ export interface UIState {
     setDraggedNode: (id?: string) => void; // Set the currently dragged node
     setHoverNode: (id?: string) => void;
     setSelectedNode: (id?: string) => void; // Set the currently selected node
+    setNodeProperty: (id: string, property: string, value: any) => void;
 }
 
 let ID_COUNTER = 0;
@@ -41,22 +36,33 @@ const addNode = (set: Setter) => (node: Node) => {
         return {
             nodes: { ...state.nodes, [node.id]: node, [node.parentId!]: parentNode },
         }
-    })
+    });
+
+    set((state) => {
+        const parentNode = state.nodes[node.parentId!];
+        const childUpateCallback = nodeRegistry.nodeInfoMap[parentNode.type]?.onChildUpdate;
+        if (!childUpateCallback) return {};
+
+        return childUpateCallback(node.parentId!, state);
+    });
 }
 
-const rootNode: Node = {
-    id: 'root',
-    parentId: undefined,
-    type: 'root',
-    children: [],
-    properties: {},
-    propertySchema: {},
+const setNodeProperty = (set: Setter) => (id: string, property: string, value: any) => {
+    set((state) => {
+        const node = state.nodes[id];
+        node.properties = {...node.properties, [property]: value};
+        return {nodes: {...state.nodes}};
+    });
 }
+
+const rootNode: Node = newNode();
+rootNode.id = "Node 0";
+rootNode.parentId = undefined;
 
 const useDragAndDropStore = create<UIState>((set) => ({
     rootNode: rootNode,
     nodes: { [rootNode.id]: rootNode },
-    selectedNodeId: undefined,
+    selectedNodeId: rootNode.id,
     draggedNodeId: undefined,
     addNode: addNode(set),
     updateNode: (id, updates) =>
@@ -73,7 +79,8 @@ const useDragAndDropStore = create<UIState>((set) => ({
         }),
     setDraggedNode: (id) => set({ draggedNodeId: id }),
     setHoverNode: (id) => set({ hoverNodeId: id}),
-    setSelectedNode: (id) => set({ selectedNodeId: id })
+    setSelectedNode: (id) => set({ selectedNodeId: id }),
+    setNodeProperty: setNodeProperty(set)
 }));
 
 export default useDragAndDropStore;

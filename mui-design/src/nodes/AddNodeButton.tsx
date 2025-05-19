@@ -5,8 +5,9 @@ import {Menu, type MenuProps} from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import { KeyboardArrowDown } from '@mui/icons-material';
-import useDragAndDropStore, {type Node} from './useDragAndDropStore';
-import { newButtonNode, newSpanNode, newFlexColumnNode, newFlexRowNode, newTextNode, newTabNode } from './nodes';
+import {nextId, type Node} from './node';
+import useDragAndDropStore from './useDragAndDropStore';
+import { nodeRegistry } from './registry';
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -56,7 +57,7 @@ interface AddNodeButtonProps {
 }
 
 export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
-  const { addNode } = useDragAndDropStore();
+  const { addNode, setSelectedNode } = useDragAndDropStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -66,10 +67,19 @@ export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
     setAnchorEl(null);
   };
 
-  const handleAddNode = (node: Node) => {
+  const handleAddNode = (type: string) => {
+    const node = nodeRegistry.createNode(type);
+    node.id = nextId();
+    node.parentId = nodeId;
     addNode(node);
+
     handleClose();
   };
+
+  const handleEdit = () => {
+    setSelectedNode(nodeId);
+    handleClose();
+  }
 
   return (
     <div style={{ padding: '5px'}}>
@@ -95,29 +105,32 @@ export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
         open={open}
         onClose={handleClose}
       >
-        <MenuItem onClick={() => handleAddNode(newButtonNode(nodeId))}>
+        <MenuItem onClick={() => handleAddNode("button")}>
             Button
         </MenuItem>
-        <MenuItem onClick={() => handleAddNode(newSpanNode(nodeId))}>
-            Span
+        <MenuItem onClick={() => handleAddNode("flex")}>
+            Flex
         </MenuItem>
-        <MenuItem onClick={() => handleAddNode(newTextNode(nodeId))}>
-            TextBox 
+        <MenuItem onClick={() => handleAddNode("textfield")}>
+            TextField 
         </MenuItem>
-        <MenuItem onClick={() => handleAddNode(newFlexColumnNode(nodeId))}>
-           Flex (Column) 
-        </MenuItem>
-        <MenuItem onClick={() => handleAddNode(newFlexRowNode(nodeId))}>
-           Flex (Row) 
-        </MenuItem>
-        <MenuItem onClick={() => handleAddNode(newTabNode(nodeId))}>
+        <MenuItem onClick={() => handleAddNode("tab")}>
             Tab
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => handleAddNode("checkbox")}>
+            Checkbox
+        </MenuItem>
+        <MenuItem onClick={() => handleAddNode("radiogroup")}>
+            Radio
+        </MenuItem>
+        <MenuItem onClick={() => handleAddNode("list")}>
             List
         </MenuItem>
+        <MenuItem onClick={() => handleAddNode("typography")}>
+            Typography
+        </MenuItem>
         <Divider sx={{ my: 0.5 }} />
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleEdit}>
             Edit
         </MenuItem>
         <MenuItem onClick={handleClose}>
