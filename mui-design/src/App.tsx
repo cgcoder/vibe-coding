@@ -11,22 +11,24 @@ import { listNodeInfo } from './nodes/nodeList';
 import { checkboxNodeInfo } from './nodes/nodeCheckbox';
 import { radiogroupNodeInfo } from './nodes/nodeRadioGroup';
 import { typographyNodeInfo } from './nodes/nodeTypography';
+import { tableNodeInfo } from './nodes/nodeTable';
+import { dividerNodeInfo } from './nodes/nodeDivider';
+import { dropdownNodeInfo } from './nodes/nodeDropdown';
 
 function App() {
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
       {/* Left Panel */}
-      <div style={{ minWidth: '300px', maxWidth: '300px', backgroundColor: '#DFDFDF', maxHeight: '100vh', overflow: "scroll",
-            padding: '10px' }}>
-        <div style={{ minWidth: '300px', backgroundColor: '#DFDFDF', 
-            padding: '10px', boxSizing: 'border-box' }}>
+      <div style={{ minWidth: '300px', maxWidth: '300px', backgroundColor: '#FAFAFA', maxHeight: '100vh', overflow: "scroll",
+            }}>
+        <div style={{ boxSizing: 'border-box' }}>
             <PropertiesPanel />
         </div>
 
       </div>
 
       {/* Right Panel */}
-      <div style={{ flex: 1, backgroundColor: '#ffffff', padding: '10px', maxHeight: '100vh' }}>
+      <div style={{ flex: 1, backgroundColor: '#ffffff', maxHeight: '100vh' }}>
         <div id='design-area' style={{ border: '2px dashed #ccc', height: '100%' }}>
           <RootNode />
         </div>
@@ -44,6 +46,9 @@ function App() {
   nodeRegistry.registerNode(checkboxNodeInfo);
   nodeRegistry.registerNode(radiogroupNodeInfo);
   nodeRegistry.registerNode(typographyNodeInfo);
+  nodeRegistry.registerNode(tableNodeInfo);
+  nodeRegistry.registerNode(dividerNodeInfo);
+  nodeRegistry.registerNode(dropdownNodeInfo);
   validateRegistry();
 })();
 

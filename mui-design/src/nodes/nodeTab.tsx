@@ -26,7 +26,6 @@ const propertySchema: Record<string, PropertySchema> = {
         description: "Minimum Width",
         editorStyleProps: {
             textAlign: "right",
-            width: "50px"
         }
     },
     tabLabels: {
@@ -35,10 +34,6 @@ const propertySchema: Record<string, PropertySchema> = {
         label: "Tab Labels",
         default: "1px",
         description: "Labels for Tab",
-        editorStyleProps: {
-            textAlign: "right",
-            width: "50px"
-        },
         group: "Label"
     }
 };

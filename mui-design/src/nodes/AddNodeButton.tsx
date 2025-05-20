@@ -57,7 +57,7 @@ interface AddNodeButtonProps {
 }
 
 export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
-  const { addNode, setSelectedNode } = useDragAndDropStore();
+  const { addNode, setSelectedNode, nodes, deleteNode } = useDragAndDropStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -79,6 +79,10 @@ export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
   const handleEdit = () => {
     setSelectedNode(nodeId);
     handleClose();
+  }
+
+  const handleDelete = () => {
+    deleteNode(nodeId);
   }
 
   return (
@@ -129,9 +133,21 @@ export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
         <MenuItem onClick={() => handleAddNode("typography")}>
             Typography
         </MenuItem>
+        <MenuItem onClick={() => handleAddNode("table")}>
+            Table
+        </MenuItem>
+        <MenuItem onClick={() => handleAddNode("divider")}>
+            Divider
+        </MenuItem>
+        <MenuItem onClick={() => handleAddNode("dropdown")}>
+            Dropdown
+        </MenuItem>
         <Divider sx={{ my: 0.5 }} />
         <MenuItem onClick={handleEdit}>
             Edit
+        </MenuItem>
+        <MenuItem onClick={handleDelete}>
+            Delete
         </MenuItem>
         <MenuItem onClick={handleClose}>
           More

@@ -16,6 +16,7 @@ export interface UIState {
     setHoverNode: (id?: string) => void;
     setSelectedNode: (id?: string) => void; // Set the currently selected node
     setNodeProperty: (id: string, property: string, value: any) => void;
+    deleteNode: (id: string) => void;
 }
 
 let ID_COUNTER = 0;
@@ -55,6 +56,18 @@ const setNodeProperty = (set: Setter) => (id: string, property: string, value: a
     });
 }
 
+const deleteNode = (set: Setter) => (id: string) => {
+    set((state) => {
+        const node = state.nodes[id];
+        if (!node.parentId) return null;
+        const parentNode = state.nodes[node.parentId];
+        const nodes = state.nodes;
+        delete nodes[id];
+        parentNode.children = parentNode.children?.filter(n => n !== id);
+        return {nodes: {...nodes}};
+    });
+}
+
 const rootNode: Node = newNode();
 rootNode.id = "Node 0";
 rootNode.parentId = undefined;
@@ -80,7 +93,8 @@ const useDragAndDropStore = create<UIState>((set) => ({
     setDraggedNode: (id) => set({ draggedNodeId: id }),
     setHoverNode: (id) => set({ hoverNodeId: id}),
     setSelectedNode: (id) => set({ selectedNodeId: id }),
-    setNodeProperty: setNodeProperty(set)
+    setNodeProperty: setNodeProperty(set),
+    deleteNode: deleteNode(set)
 }));
 
 export default useDragAndDropStore;

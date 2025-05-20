@@ -66,9 +66,10 @@ export const buttonNodeInfo: NodeInfo = {
 
 function render(node: Node, ctx: RenderContext): React.ReactNode {
     const { setSelectedNode } = useDragAndDropStore();
-    const handleClick = () => {
+    const handleClick = (e: any) => {
+        e.stopPropagation();
         setSelectedNode(node.id);
     };
     
-    return <Button {...node.properties} style={{  }} onClick={handleClick}>Button</Button>
+    return <Button {...node.properties} style={{  }} onClick={handleClick}>{node.properties["text"]}</Button>
 }

@@ -23,6 +23,7 @@ const propertySchema: Record<string, PropertySchema> = {
         label: "Direction",
         default: "row",
         description: "Direction flex",
+        group: "Flex",
         options: ["row", "column", "row-reverse", "column-reverse"],
     } as EnumPropertySchema,
     padding: {
@@ -79,7 +80,7 @@ const propertySchema: Record<string, PropertySchema> = {
         name: "justifyContent",
         type: "enum",
         label: "Justify Items",
-        default: "center",
+        default: "flex-start",
         description: "Configure how spaces are distributed.",
         options: [
             "flex-start",
@@ -126,7 +127,7 @@ const propertySchema: Record<string, PropertySchema> = {
         name: "alignContent",
         type: "enum",
         label: "Align Content",
-        default: "center",
+        default: "flex-start",
         description: "Configure align content for flexbox.",
         options: [
             "flex-start",
@@ -164,9 +165,9 @@ function getProps(): Record<string, any> {
     height: "",
     justifyContent: "center",
     alignItems: "center",
-    alignSelf: "",
-    alignContent: "",
-    flexWrap: "",
+    alignSelf: "center",
+    alignContent: "center",
+    flexWrap: "wrap",
   };
 }
 
@@ -192,6 +193,17 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
     )
   );
 
+  let styleOverrides = null;
+  const styleOverridesStr = node.properties["styleOverrides"];
+  if (styleOverridesStr) {
+    try {
+        styleOverrides = JSON.parse(styleOverridesStr);
+    }
+    catch (e) {
+        console.log(`node id ${node.id} styleOverride: ${styleOverridesStr} is not a valid json`);
+    }
+  }
+
   return (
     <div
       onMouseEnter={() => setHoverNode(node.id)}
@@ -204,11 +216,12 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
         flexDirection: node.properties["direction"],
         alignItems: "center",
         justifyContent: "center",
-        padding: "10px",
-        minHeight: "20px",
+        padding: "1px",
+        minHeight: "1px",
         minWidth: "50px",
         ...style,
         ...validProps,
+        ...styleOverrides
       }}
     >
       {childNode.map((child) => {

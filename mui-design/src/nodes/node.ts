@@ -40,7 +40,8 @@ export function nextId(): string {
 
 export const defaultProps: Record<string, any> = {
     "name": "",
-    "description": ""
+    "description": "",
+    "styleOverrides": ""
 }
 
 export const defaultPropsSchema: Record<string, PropertySchema> = {
@@ -61,5 +62,14 @@ export const defaultPropsSchema: Record<string, PropertySchema> = {
         description: "Description",
         group: "Info",
         editorStyleProps: {width: "100%"}
-    }
+    },
+    styleOverrides: {
+        name: "styleOverrides",
+        type: "bigstring",
+        label: "Style Overrides",
+        default: "",
+        description: "Style Overrides",
+        group: "Overrides",
+        editorStyleProps: {width: "100%"}
+    },
 }

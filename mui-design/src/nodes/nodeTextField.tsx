@@ -55,8 +55,9 @@ export const textFieldNodeInfo: NodeInfo = {
 
 function render(node: Node, ctx: RenderContext): React.ReactNode {
   const { setSelectedNode } = useDragAndDropStore();
-  const handleClick = () => {
+  const handleClick = (e: any) => {
     setSelectedNode(node.id);
+    e.stopPropagation();
   };
 
   return (
@@ -66,7 +67,7 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
         placeholder={node.properties["placeholder"]}
         label={node.properties["label"]}
         style={{ width: "100%" }}
-        onClick={() => handleClick()}
+        onClick={(e) => handleClick(e)}
         {...node.properties}
       />
     </div>

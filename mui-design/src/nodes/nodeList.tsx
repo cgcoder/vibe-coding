@@ -5,13 +5,15 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import SendIcon from "@mui/icons-material/Send";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import StarBorder from "@mui/icons-material/StarBorder";
-import type { Node, PropertySchema } from "./node";
+
+import {
+  defaultProps,
+  defaultPropsSchema,
+  type Node,
+  type PropertySchema,
+} from "./node";
 import type { NodeInfo, RenderContext } from "./registry";
 import useDragAndDropStore from "./useDragAndDropStore";
 import Icon from "./Icon";
@@ -28,6 +30,7 @@ export const newNode = () => {
 };
 
 const propertySchema: Record<string, PropertySchema> = {
+  ...defaultPropsSchema,
   minWidth: {
     name: "minWidth",
     type: "string",
@@ -69,6 +72,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     minWidth: "100%",
     items: "",
     subHeader: "",
@@ -121,37 +125,48 @@ export const NestedList: React.FC<NestedListProps> = ({
         )
       }
     >
-      {listItems.map((li, i) => <ListItemControl item={li} key={i} padding={0} />)}
+      {listItems.map((li, i) => (
+        <ListItemControl item={li} key={i} padding={0} />
+      ))}
     </List>
   );
 };
 
 interface ListItemControlProps {
-    item: ListItem;
-    padding: number;
-};
+  item: ListItem;
+  padding: number;
+}
 
-const ListItemControl: React.FC<ListItemControlProps> = ({item, padding}) => {
-    const [open, setOpen] = React.useState(true);
-    const handleClick = () => {
+const ListItemControl: React.FC<ListItemControlProps> = ({ item, padding }) => {
+  const [open, setOpen] = React.useState(true);
+  const handleClick = () => {
     setOpen(!open);
   };
 
-    return <>
-    <ListItemButton onClick={handleClick} sx={{pl: padding === 0 ? 2 : padding }}>
-        {item.icon && <ListItemIcon>
-          <Icon name={item.icon} />
-        </ListItemIcon>}
+  return (
+    <>
+      <ListItemButton
+        onClick={handleClick}
+        sx={{ pl: padding === 0 ? 2 : padding }}
+      >
+        {item.icon && (
+          <ListItemIcon>
+            <Icon name={item.icon} />
+          </ListItemIcon>
+        )}
         <ListItemText primary={item.text} />
         {item.children?.length > 0 && (open ? <ExpandLess /> : <ExpandMore />)}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {item.children.map((ci, i) => <ListItemControl item={ci} key={i} padding={padding + 4} />)}  
+          {item.children.map((ci, i) => (
+            <ListItemControl item={ci} key={i} padding={padding + 4} />
+          ))}
         </List>
       </Collapse>
     </>
-}
+  );
+};
 
 function render(node: Node, ctx: RenderContext): React.ReactNode {
   return <NestedList node={node} />;
@@ -165,36 +180,36 @@ export const listNodeInfo: NodeInfo = {
 };
 
 interface ListItem {
-    text: string;
-    icon: string;
-    children: ListItem[]
+  text: string;
+  icon: string;
+  children: ListItem[];
 }
 
 function parseListItems(str: string): ListItem[] {
-    if (!str.trim()) return [];
-    const lines = str.split('\n').filter(line => line.trim() !== '');
-    const stack: { indent: number; item: ListItem }[] = [];
-    const result: ListItem[] = [];
+  if (!str.trim()) return [];
+  const lines = str.split("\n").filter((line) => line.trim() !== "");
+  const stack: { indent: number; item: ListItem }[] = [];
+  const result: ListItem[] = [];
 
-    for (const line of lines) {
-        const match = line.match(/^(\s*)([^,]+),(.*)$/);
-        if (!match) continue;
-        const indent = match[1].length;
-        const icon = match[3].trim();
-        const text = match[2].trim();
-        const item: ListItem = { text, icon, children: [] };
+  for (const line of lines) {
+    const match = line.match(/^(\s*)([^,]+),(.*)$/);
+    if (!match) continue;
+    const indent = match[1].length;
+    const icon = match[3].trim();
+    const text = match[2].trim();
+    const item: ListItem = { text, icon, children: [] };
 
-        while (stack.length && stack[stack.length - 1].indent >= indent) {
-            stack.pop();
-        }
-
-        if (stack.length === 0) {
-            result.push(item);
-        } else {
-            stack[stack.length - 1].item.children.push(item);
-        }
-        stack.push({ indent, item });
+    while (stack.length && stack[stack.length - 1].indent >= indent) {
+      stack.pop();
     }
 
-    return result;
+    if (stack.length === 0) {
+      result.push(item);
+    } else {
+      stack[stack.length - 1].item.children.push(item);
+    }
+    stack.push({ indent, item });
+  }
+
+  return result;
 }
