@@ -1,8 +1,9 @@
 
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, Node } from "./node";
+import { type PropertySchema, type Node, defaultProps, defaultPropsSchema } from "./node";
 import useDragAndDropStore from "./useDragAndDropStore";
 import { Divider } from "@mui/material";
+import { nodeStyle } from "./utils";
 
 export const newNode = () => {
     return {
@@ -14,10 +15,13 @@ export const newNode = () => {
     };
 }
 
-const propertySchema: Record<string, PropertySchema> = {}
+const propertySchema: Record<string, PropertySchema> = {
+    ...defaultPropsSchema
+}
 
 function getProps(): Record<string, any> {
     return {
+        ...defaultProps,
         };
 }
 
@@ -33,6 +37,6 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
     const handleClick = () => {
         setSelectedNode(node.id);
     };
-    
-    return <Divider onClick={handleClick} style={{width: "100%"}} />
+    let styleOverrides = nodeStyle(node);
+    return <Divider onClick={handleClick} style={{width: "100%", ...styleOverrides}} />
 }

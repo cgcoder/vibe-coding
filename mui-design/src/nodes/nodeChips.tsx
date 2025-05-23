@@ -2,13 +2,13 @@
 import type { NodeInfo, RenderContext } from "./registry";
 import { type PropertySchema, type EnumPropertySchema, type Node, defaultProps, defaultPropsSchema } from "./node";
 import useDragAndDropStore from "./useDragAndDropStore";
-import { Button } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 
 export const newNode = () => {
     return {
         parentId: '',
         id: '',
-        type: 'button',
+        type: 'chips',
         children: [],
         properties: getProps()
     };
@@ -16,21 +16,13 @@ export const newNode = () => {
 
 const propertySchema: Record<string, PropertySchema> = {
             ...defaultPropsSchema,
-            "text": {
-                name: "text",
-                type: "string",
-                label: "Button Text",
-                default: "Button",
-                description: "The text displayed on the button"
+            "values": {
+                name: "values",
+                type: "bigstring",
+                label: "Chip Values",
+                default: "",
+                description: "Chips to be displayed. Separated by new line."
             },
-            "color": {
-                name: "color",
-                type: "enum",
-                label: "Color",
-                default: "primary",
-                description: "The color of the button",
-                options: ['inherit', 'primary', 'secondary', 'success', 'error', 'info', 'warning'],
-            } as EnumPropertySchema,
             "size": {
                 name: "size",
                 type: "enum",
@@ -44,34 +36,30 @@ const propertySchema: Record<string, PropertySchema> = {
                 type: "enum",
                 label: "Variant",
                 default: "text",
-                description: "The size of the button",
-                options: ["text", "contained", "outlined"]
+                description: "Style of the chip",
+                options: ["default", "outlined"]
             } as EnumPropertySchema
         }
 
 function getProps(): Record<string, any> {
     return {
             ...defaultProps,
-            "text": "Button",
-            "color": "primary",
+            "values": "value1",
             "size": "small",
             "variant": "outlined"
         };
 }
 
-export const buttonNodeInfo: NodeInfo = {
-    type: 'button',
+export const chipsNodeInfo: NodeInfo = {
+    type: 'chips',
     propertySchema: propertySchema,
     newNode,
     render: render
 }
 
 function render(node: Node, ctx: RenderContext): React.ReactNode {
-    const { setSelectedNode } = useDragAndDropStore();
-    const handleClick = (e: any) => {
-        e.stopPropagation();
-        setSelectedNode(node.id);
-    };
-    
-    return <Button {...node.properties} style={{  }} onClick={handleClick}>{node.properties["text"]}</Button>
+    const values = (node.properties["values"] as string).split("\n").map(m => m.trim());
+    return <>
+        {values.map(v => <Chip variant={node.properties["variant"]} label={v} size={node.properties["size"]} />)}
+    </>
 }

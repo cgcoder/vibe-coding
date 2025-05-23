@@ -1,5 +1,5 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, EnumPropertySchema, Node } from "./node";
+import { type PropertySchema, type EnumPropertySchema, type Node, defaultPropsSchema, defaultProps } from "./node";
 import useDragAndDropStore from "./useDragAndDropStore";
 import {
   Button,
@@ -21,6 +21,7 @@ export const newNode = () => {
 };
 
 const propertySchema: Record<string, PropertySchema> = {
+  ...defaultPropsSchema,
   label: {
     name: "label",
     type: "string",
@@ -55,6 +56,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     label: "Label",
     options: "",
     direction: "horizontal",

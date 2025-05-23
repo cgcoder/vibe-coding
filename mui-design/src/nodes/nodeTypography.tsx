@@ -1,5 +1,11 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, EnumPropertySchema, Node } from "./node";
+import {
+  type PropertySchema,
+  type EnumPropertySchema,
+  type Node,
+  defaultPropsSchema,
+  defaultProps,
+} from "./node";
 import { TextField, Typography } from "@mui/material";
 import useDragAndDropStore from "./useDragAndDropStore";
 
@@ -14,42 +20,44 @@ export const newNode: NodeInfo["newNode"] = (type: string) => {
 };
 
 const propertySchema: Record<string, PropertySchema> = {
-    text: {
-        name: "text",
-        type: "string",
-        label: "Text",
-        default: "Text",
-        description: "Typography Text",
-    },
-    variant: {
-        name: "variant",
-        type: "enum",
-        label: "Variant",
-        default: "h3",
-        description: "Typography variant",
-        options: [
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "h5",
-            "h6",
-            "subtitle1",
-            "subtitle2",
-            "body1",
-            "body2",
-            "caption",
-            "button",
-            "overline",
-            "inherit",
-        ],
-    } as EnumPropertySchema,
+  ...defaultPropsSchema,
+  text: {
+    name: "text",
+    type: "string",
+    label: "Text",
+    default: "Text",
+    description: "Typography Text",
+  },
+  variant: {
+    name: "variant",
+    type: "enum",
+    label: "Variant",
+    default: "h3",
+    description: "Typography variant",
+    options: [
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "subtitle1",
+      "subtitle2",
+      "body1",
+      "body2",
+      "caption",
+      "button",
+      "overline",
+      "inherit",
+    ],
+  } as EnumPropertySchema,
 };
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     text: "Text",
-    variant: "h3"
+    variant: "h3",
   };
 }
 
@@ -68,7 +76,8 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
   };
 
   return (
-      <Typography
-        variant={node.properties["variant"]} onClick={handleClick}>{node.properties["text"]}</Typography>
+    <Typography variant={node.properties["variant"]} onClick={handleClick}>
+      {node.properties["text"]}
+    </Typography>
   );
 }

@@ -1,5 +1,5 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, Node } from "./node";
+import { type PropertySchema, type Node, defaultPropsSchema, defaultProps } from "./node";
 import useDragAndDropStore, { type UIState } from "./useDragAndDropStore";
 import { NodeComponent } from "./NodeComponent";
 import AddNodeButton from "./AddNodeButton";
@@ -13,11 +13,12 @@ export const newNode = () => {
         type: 'tab',
         children: [],
         properties: getProps(),
-        propertySchema: {}
+        propertySchema: propertySchema,
     };
 };
 
 const propertySchema: Record<string, PropertySchema> = {
+    ...defaultPropsSchema,
     minWidth: {
         name: "minWidth",
         type: "string",
@@ -40,6 +41,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     minWidth: "100%",
     tabLabels: []
   };

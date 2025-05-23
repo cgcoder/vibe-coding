@@ -1,5 +1,5 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, EnumPropertySchema, Node } from "./node";
+import { type PropertySchema, type EnumPropertySchema, type Node, defaultPropsSchema, defaultProps } from "./node";
 import { Box, Typography } from "@mui/material";
 import useDragAndDropStore from "./useDragAndDropStore";
 import { DataGrid, type GridCellParams, type GridColDef, type MuiEvent } from '@mui/x-data-grid';
@@ -15,6 +15,7 @@ export const newNode: NodeInfo["newNode"] = (type: string) => {
 };
 
 const propertySchema: Record<string, PropertySchema> = {
+  ...defaultPropsSchema,
     header: {
         name: "header",
         type: "bigstring",
@@ -40,6 +41,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     header: `header1,60
     header2,60`,
     rows: `row11,60

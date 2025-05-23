@@ -142,6 +142,12 @@ export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
         <MenuItem onClick={() => handleAddNode("dropdown")}>
             Dropdown
         </MenuItem>
+        <MenuItem onClick={() => handleAddNode("image")}>
+            Image
+        </MenuItem>
+        <MenuItem onClick={() => handleAddNode("image")}>
+            Chips
+        </MenuItem>
         <Divider sx={{ my: 0.5 }} />
         <MenuItem onClick={handleEdit}>
             Edit
@@ -151,6 +157,12 @@ export default function AddNodeButton({nodeId}: AddNodeButtonProps) {
         </MenuItem>
         <MenuItem onClick={handleClose}>
           More
+        </MenuItem>
+        <MenuItem>
+          Move Up
+        </MenuItem>
+        <MenuItem onClick={handleClose}>
+          Move Down
         </MenuItem>
       </StyledMenu>
     </div>

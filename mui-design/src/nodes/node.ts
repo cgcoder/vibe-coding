@@ -1,3 +1,4 @@
+import { arrToObj } from "./utils";
 
 export type PropertyValueType = "enum" | "string" | "string[]" | "bigstring" | "boolean" | "tuple"
 
@@ -8,7 +9,7 @@ export interface PropertySchema {
     default: any;
     description: string;
     editorStyleProps?: Record<string, any>;
-    group?: string;
+    section?: string;
 }
 
 export interface Node {
@@ -38,10 +39,30 @@ export function nextId(): string {
     return `node ${_nextId}`;
 }
 
+export function nextIdAsNumber(): number {
+    return ++_nextId;
+
+}
+
+export function setNextId(id: number) {
+    _nextId = id;
+    _nextId++;
+}
+
 export const defaultProps: Record<string, any> = {
     "name": "",
     "description": "",
-    "styleOverrides": ""
+    "styleOverrides": "",
+    "size": ["100%", "", "", "10px", "", ""],
+    padding: ["5px", "5px", "5px", "5px"],
+}
+
+export function nodeSize(node: Node): any {
+    return arrToObj(node.properties["size"], "width", "height", "minWidth", "minHeight", "maxWidth", "maxHeight");
+}
+
+export function nodePadding(node: Node): any {
+    return arrToObj(node.properties["padding"], "paddingLeft", "paddingRight", "paddingTop", "paddingBottom");
 }
 
 export const defaultPropsSchema: Record<string, PropertySchema> = {
@@ -51,7 +72,7 @@ export const defaultPropsSchema: Record<string, PropertySchema> = {
         label: "Name",
         default: "",
         description: "Name",
-        group: "Info",
+        section: "Info",
         editorStyleProps: {width: "100%"}
     },
      description: {
@@ -60,7 +81,7 @@ export const defaultPropsSchema: Record<string, PropertySchema> = {
         label: "Description",
         default: "1px",
         description: "Description",
-        group: "Info",
+        section: "Info",
         editorStyleProps: {width: "100%"}
     },
     styleOverrides: {
@@ -69,7 +90,33 @@ export const defaultPropsSchema: Record<string, PropertySchema> = {
         label: "Style Overrides",
         default: "",
         description: "Style Overrides",
-        group: "Overrides",
+        section: "Overrides",
         editorStyleProps: {width: "100%"}
     },
+    size: {
+        name: "size",
+        type: "tuple",
+        label: "Sap",
+        default: "1px",
+        description: "Size",
+        tupleCount: 6,
+        tupleLabel: ["Width", "Height", "Min Width", "Min Height", "Max Width", "Max Height"],
+        editorStyleProps: {
+            "maxWidth": "120px"
+        },
+        section: "Size"
+    } as TuplePropertySchema,
+    padding: {
+        name: "padding",
+        type: "tuple",
+        label: "Padding",
+        default: "5px 5px 5px 5px",
+        description: "Padding",
+        tupleCount: 4,
+        tupleLabel: ["Left", "Right", "Top", "Bottom"],
+        editorStyleProps: {
+            "maxWidth": "120px"
+        },
+        section: "Padding"
+    } as TuplePropertySchema,
 }

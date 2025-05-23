@@ -1,5 +1,5 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, EnumPropertySchema, Node } from "./node";
+import { type PropertySchema, type EnumPropertySchema, type Node, defaultPropsSchema, defaultProps } from "./node";
 import { TextField } from "@mui/material";
 import useDragAndDropStore from "./useDragAndDropStore";
 
@@ -14,6 +14,7 @@ export const newNode: NodeInfo["newNode"] = (type: string) => {
 };
 
 const propertySchema: Record<string, PropertySchema> = {
+  ...defaultPropsSchema,
   label: {
     name: "label",
     type: "string",
@@ -40,6 +41,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     label: "Label",
     placeholder: "Placeholder",
     size: "small",
@@ -68,7 +70,6 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
         label={node.properties["label"]}
         style={{ width: "100%" }}
         onClick={(e) => handleClick(e)}
-        {...node.properties}
       />
     </div>
   );

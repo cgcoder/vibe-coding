@@ -1,6 +1,6 @@
 
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, EnumPropertySchema, Node } from "./node";
+import { type PropertySchema, type EnumPropertySchema, type Node, defaultPropsSchema, defaultProps } from "./node";
 import useDragAndDropStore from "./useDragAndDropStore";
 import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React from "react";
@@ -16,6 +16,7 @@ export const newNode = () => {
 }
 
 const propertySchema: Record<string, PropertySchema> = {
+            ...defaultPropsSchema,
             "options": {
                 name: "options",
                 type: "bigstring",
@@ -50,6 +51,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
     return {
+            ...defaultProps,
             "options": "Option 1",
             "label": "Label",
             "size": "medium",

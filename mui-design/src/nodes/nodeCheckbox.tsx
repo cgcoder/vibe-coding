@@ -1,8 +1,7 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import type { PropertySchema, EnumPropertySchema, Node } from "./node";
+import { type PropertySchema, type EnumPropertySchema, type Node, defaultProps, defaultPropsSchema } from "./node";
 import useDragAndDropStore from "./useDragAndDropStore";
-import { Button, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
-import { CheckBox } from "@mui/icons-material";
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
 export const newNode = () => {
   return {
@@ -15,6 +14,7 @@ export const newNode = () => {
 };
 
 const propertySchema: Record<string, PropertySchema> = {
+  ...defaultPropsSchema,
   label: {
     name: "label",
     type: "string",
@@ -42,6 +42,7 @@ const propertySchema: Record<string, PropertySchema> = {
 
 function getProps(): Record<string, any> {
   return {
+    ...defaultProps,
     label: "Label",
     color: "default",
     size: "small",

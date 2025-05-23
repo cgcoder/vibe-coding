@@ -6,10 +6,11 @@ import { TupleEditor } from "./propertyEditors/TupleEditor";
 import { EnumEditor } from "./propertyEditors/EnumEditor";
 import { StringEditor } from "./propertyEditors/StringEditor";
 import type { TuplePropertySchema } from "./nodes/node";
-import { Divider, Link, TextField } from "@mui/material";
+import { Box, Divider, Link, Typography } from "@mui/material";
 import { StringArrEditor } from "./propertyEditors/StringArrEditor";
 import { BigStringEditor } from "./propertyEditors/BigStringEditor";
 import React from "react";
+import ChildPanel from "./ChildPanel";
 
 export interface PropertiesProps {
 
@@ -30,10 +31,9 @@ function order(k: string) {
 }
 
 export const PropertiesPanel: React.FC<PropertiesProps> = () => {
-    const { selectedNodeId, nodes, hoverNodeId, setSelectedNode, deleteNode } = useDragAndDropStore();
+    const { selectedNodeId, nodes, hoverNodeId, toggleSection, collapsedSections } = useDragAndDropStore();
     const nodeId = selectedNodeId || hoverNodeId;
     const node = nodeId ? nodes[nodeId] : null;
-    const [collapsedPropGroups, setCollapsedPropGroups] = React.useState<string[]>([]);
 
     if (!node || node.type === 'root') {
         return <div>Select a node to see its properties</div>;
@@ -47,7 +47,7 @@ export const PropertiesPanel: React.FC<PropertiesProps> = () => {
     const groupedProps: Record<string, string[]> = {};
 
     propKeys.forEach((key) => {
-        const group = nodePropSchema[key].group || "General";
+        const group = nodePropSchema[key].section || "General";
         if (!groupedProps[group]) groupedProps[group] = [];
         groupedProps[group].push(key);
     });
@@ -58,36 +58,20 @@ export const PropertiesPanel: React.FC<PropertiesProps> = () => {
 
     const groupedPropEntries = Object.keys(groupedProps).sort((a, b) => order(a) - order(b))
 
-    const toggleSection = (g: string) => {
-        if (collapsedPropGroups.includes(g)) {
-            setCollapsedPropGroups(collapsedPropGroups.filter(i => i !==g));
-        }
-        else {
-            collapsedPropGroups.push(g);
-            setCollapsedPropGroups([...collapsedPropGroups]);
-        }
-    }
-
     return (
         <>
-            <div style={{ display: "flex", flexDirection: "column", gap: 15, padding: '10px' }}>
-                <Divider textAlign="center" style={{paddingTop: "5px", fontSize: "15px"}}>Properties</Divider>
-                <PropertySection label="Type">
-                    <TextField value={node.type} label="Type" size="small" style={{width: "100%"}}></TextField>
-                </PropertySection>
-                <PropertySection label="ID">
-                    <TextField value={node.id} label="ID" size="small" style={{width: "100%"}}></TextField>
-                    {node.parentId && <Link color="primary" onClick={() => setSelectedNode(node.parentId)} style={{cursor: ""}} href="#">Parent</Link>}{'  '} 
-                    {node.parentId && <Link color="secondary" onClick={() => deleteNode(node.id)} style={{cursor: ""}} href="#">Delete</Link>}
-                </PropertySection>
-                <div style={{ borderTop: "1px solid #ffffff" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: '10px' }}>
+                <Divider textAlign="center" style={{paddingTop: "1px", fontSize: "12px"}}>Properties</Divider>
+                <Box flex="row"><Typography variant="subtitle1">Type: {node.type}, ID: {node.id}</Typography></Box>
                 {groupedPropEntries.flatMap(g => {
-                    const props = collapsedPropGroups.indexOf(g) >= 0 ? [] : groupedProps[g].map(k => {
+                    const props = collapsedSections.indexOf(g) >= 0 ? [] : groupedProps[g].map(k => {
                         return <PropertySection key={k} label={nodePropSchema[k].label}>
                         <PropertyValueEditor nodeId={node.id} property={k} />
                     </PropertySection>});
-                    return [(<Divider key={`divider-${g}`} textAlign="center" style={{paddingTop: "5px", fontSize: "15px"}}><b><Link href="#" onClick={() => toggleSection(g)}>{g}</Link></b></Divider>), ...props];
+                    return [(<Divider key={`divider-${g}`} textAlign="center" style={{paddingTop: "1px", fontSize: "12px"}}><b><Link href="#" onClick={() => toggleSection(g)}>{g}</Link></b></Divider>), ...props];
                 })}
+                <Divider key={`divider-tree`} textAlign="center" style={{paddingTop: "1px", fontSize: "12px"}}><b><Link href="#" onClick={() => toggleSection("tree")}>Node Tree</Link></b></Divider>
+                <ChildPanel id="Node 0" pl={0} />
             </div>
         </>
     );
@@ -99,7 +83,7 @@ type PropertySectionProps = {
 }
 
 const PropertySection: React.FC<PropertySectionProps> = ({children, label}) => {
-    return <div style={{ display: "flex", flexDirection: "row", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+    return <div style={{ display: "flex", flexDirection: "row", gap: 5, alignItems: "center", flexWrap: "wrap" }}>
         {children}
     </div>
 }

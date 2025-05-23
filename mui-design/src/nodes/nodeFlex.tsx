@@ -1,8 +1,9 @@
 import type { NodeInfo, RenderContext } from "./registry";
-import { type PropertySchema, type EnumPropertySchema, type Node, type TuplePropertySchema, defaultProps, defaultPropsSchema } from "./node";
+import { type PropertySchema, type EnumPropertySchema, type Node, type TuplePropertySchema, defaultProps, defaultPropsSchema, nodeSize, nodePadding } from "./node";
 import useDragAndDropStore from "./useDragAndDropStore";
 import { NodeComponent } from "./NodeComponent";
 import AddNodeButton from "./AddNodeButton";
+import { arrToObj, nodeStyle } from "./utils";
 
 export const newNode = () => {
   return {
@@ -23,22 +24,9 @@ const propertySchema: Record<string, PropertySchema> = {
         label: "Direction",
         default: "row",
         description: "Direction flex",
-        group: "Flex",
+        section: "Flex",
         options: ["row", "column", "row-reverse", "column-reverse"],
     } as EnumPropertySchema,
-    padding: {
-        name: "padding",
-        type: "tuple",
-        label: "Padding",
-        default: "5px 5px 5px 5px",
-        description: "Padding",
-        tupleCount: 4,
-        tupleLabel: ["Top", "Right", "Bottom", "Left"],
-        editorStyleProps: {
-            "maxWidth": "100px"
-        },
-        group: "Padding"
-    } as TuplePropertySchema,
     gap: {
         name: "gap",
         type: "tuple",
@@ -48,34 +36,10 @@ const propertySchema: Record<string, PropertySchema> = {
         tupleCount: 2,
         tupleLabel: ["Row Gap", "Col Gap"],
         editorStyleProps: {
-            "maxWidth": "100px"
+            "maxWidth": "120px"
         },
-        group: "Gap"
+        section: "Gap"
     } as TuplePropertySchema,
-    width: {
-        name: "width",
-        type: "string",
-        label: "Width",
-        default: "1px",
-        description: "Width",
-        editorStyleProps: {
-            textAlign: "right",
-            width: "100%"
-        },
-        group: "Size"
-    },
-    height: {
-        name: "height",
-        type: "string",
-        label: "Height",
-        default: "1px",
-        description: "Height",
-        editorStyleProps: {
-            textAlign: "right",
-            width: "100%"
-        },
-        group: "Size"
-    },
     justifyContent: {
         name: "justifyContent",
         type: "enum",
@@ -94,7 +58,7 @@ const propertySchema: Record<string, PropertySchema> = {
             "left",
             "right"
         ],
-        group: "Flex"
+        section: "Flex"
     } as EnumPropertySchema,
     alignItems: {
         name: "alignItems",
@@ -105,7 +69,7 @@ const propertySchema: Record<string, PropertySchema> = {
         options: [
             "stretch", "center", "start", "end"
         ],
-        group: "Flex"
+        section: "Flex"
     } as EnumPropertySchema,
     alignSelf: {
         name: "alignSelf",
@@ -121,7 +85,7 @@ const propertySchema: Record<string, PropertySchema> = {
             "baseline",
             "stretch"
         ],
-        group: "Flex"
+        section: "Flex"
     } as EnumPropertySchema,
     alignContent: {
         name: "alignContent",
@@ -138,7 +102,7 @@ const propertySchema: Record<string, PropertySchema> = {
             "space-evenly",
             "stretch"
         ],
-        group: "Flex"
+        section: "Flex"
     } as EnumPropertySchema,
     flexWrap: {
         name: "flexWrap",
@@ -151,7 +115,7 @@ const propertySchema: Record<string, PropertySchema> = {
             "wrap",
             "wrap-reverse"
         ],
-        group: "Flex"
+        section: "Flex"
     } as EnumPropertySchema,
 };
 
@@ -159,10 +123,7 @@ function getProps(): Record<string, any> {
   return {
     ...defaultProps,
     direction: "column",
-    padding: "5px 5px 5px 5px",
-    gap: "10px",
-    width: "100%",
-    height: "",
+    gap: ["10px", ""],
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
@@ -179,12 +140,16 @@ export const flexNodeInfo: NodeInfo = {
 };
 
 function render(node: Node, ctx: RenderContext): React.ReactNode {
-  const { nodes, setHoverNode, hoverNodeId, setSelectedNode, selectedNodeId } = useDragAndDropStore();
+  const { nodes, setHoverNode, hoverNodeId, setSelectedNode, selectedNodeId, mode } = useDragAndDropStore();
   const childNode = node.children!.map((child) => nodes[child]);
   const hover = hoverNodeId === node.id;
-  const style = selectedNodeId === node.id ? ({ border: "2px dashed lightblue" }) : (hover
-    ? { border: "2px dashed blue" }
-    : { border: "1px dashed #ccc" });
+  const isPreview = mode === "preview";
+  let style = isPreview ? {} : 
+          (selectedNodeId === node.id ? 
+              ({ border: "2px dashed lightblue" }) : 
+                  (hover
+                        ? { border: "2px dashed blue" }
+                        : { border: "1px dashed #ccc" }));
 
 
   const validProps = Object.fromEntries(
@@ -193,16 +158,7 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
     )
   );
 
-  let styleOverrides = null;
-  const styleOverridesStr = node.properties["styleOverrides"];
-  if (styleOverridesStr) {
-    try {
-        styleOverrides = JSON.parse(styleOverridesStr);
-    }
-    catch (e) {
-        console.log(`node id ${node.id} styleOverride: ${styleOverridesStr} is not a valid json`);
-    }
-  }
+  style = {...style, ...nodeSize(node), ...nodePadding(node), ...arrToObj(node.properties["gap"], "rowGap", "columnGap"), ...nodeStyle(node)};
 
   return (
     <div
@@ -216,12 +172,10 @@ function render(node: Node, ctx: RenderContext): React.ReactNode {
         flexDirection: node.properties["direction"],
         alignItems: "center",
         justifyContent: "center",
-        padding: "1px",
         minHeight: "1px",
         minWidth: "50px",
         ...style,
         ...validProps,
-        ...styleOverrides
       }}
     >
       {childNode.map((child) => {

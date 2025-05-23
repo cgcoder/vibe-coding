@@ -1,7 +1,7 @@
-import { TextField } from "@mui/material";
 import { nodeRegistry } from "../nodes/registry";
 import useDragAndDropStore from "../nodes/useDragAndDropStore";
 import type { PropertyValueEditorProps } from "./types";
+import { DebouncedTextField } from "./DebounceTextField";
 
 export const StringArrEditor: React.FC<PropertyValueEditorProps> = ({
   nodeId,
@@ -12,13 +12,13 @@ export const StringArrEditor: React.FC<PropertyValueEditorProps> = ({
   const values: string[] = node.properties?.[property] ?? [];
   const schema = nodeRegistry.nodeInfoMap[node.type].propertySchema[property];
 
-  const handleChange = (e: any, index: number) => {
-    node.properties[property][index] = e.target.value;
+  const handleChange = (e: string, index: number) => {
+    node.properties[property][index] = e;
     setNodeProperty(nodeId, property, node.properties?.[property]);
   };
 
   return values.map((v, i) => (
-    <TextField
+    <DebouncedTextField
       key={i}
       type="text"
       value={v}
